@@ -11,6 +11,7 @@ struct LogicValues {
     std::string name;
     std::string type;
     std::vector<LogicValues*> inputs;
+    bool NOT = false;
     bool isOutput;
     bool isEQN;
 };
