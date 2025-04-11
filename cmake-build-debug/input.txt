@@ -18,3 +18,4 @@ t8 = OR t7 d
 t9 = AND t3 t8
 t10 = AND t6 h
 F = OR t9 t10
+

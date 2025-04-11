@@ -1,7 +1,7 @@
 //
 // Created by njs94 on 4/5/2025.
 //
-
+/*
 #ifndef TREEMAKE_H
 #define TREEMAKE_H
 #include <algorithm>
@@ -28,6 +28,23 @@ public:
         LogicValues* left;
         LogicValues* right;
     };
+    Traverse* BuildTree(LogicValues* root) {
+        Traverse *traverse = new Traverse();
+        traverse->data = root;
+        traverse->left = NULL;
+        traverse->right = NULL;
+
+        if (root->inputs.empty() != false) {
+            root->left = BuildTree(root->inputs.front.front());
+            root->right = BuildTree(root->inputs.front());
+        }
+
+
+
+
+
+    }
+
     //Makes the netlist tree recursively
     void traverseMake(LogicValues* root) {
         if (root == nullptr)
@@ -44,3 +61,4 @@ public:
 
 
 #endif //TREEMAKE_H
+*/

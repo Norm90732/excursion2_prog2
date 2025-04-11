@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <sstream>
 
 //Struct to define logic values
 struct LogicValues {
@@ -10,6 +11,7 @@ struct LogicValues {
     std::string type;
     std::vector<LogicValues*> inputs;
     bool isOutput;
+    bool isOutputOutput;
 };
 
 //Helper function to point to children of each node for the netlist reading
@@ -28,7 +30,8 @@ std::fstream myFile;
 std::vector<LogicValues*> readFile() {
     LogicValues* logic = nullptr;
     std::vector<LogicValues*> logicValues;
-    myFile.open("input.txt", std::ios::in);
+
+    std::ifstream myFile("input.txt");
     if (myFile.is_open()) {
         std::string line;
         std::vector<std::string> lines;
@@ -44,22 +47,26 @@ std::vector<LogicValues*> readFile() {
             while (iss >> token) {
                 inputTokenSplit.push_back(token);
             }
-
+            if (inputTokenSplit.size() < 2) {continue;}
             //If the second word is INPUT
             if(inputTokenSplit[1] == "INPUT") {
                 logic = new LogicValues();
-                logicValues.push_back(logic);
                 logic->name = inputTokenSplit[0];
                 logic->type = "INPUT";
                 logic->isOutput = false;
+                logicValues.push_back(logic);
+                std::cout << "Input Node of " << logic->name << std::endl;
+                logic->isOutputOutput = false;
             }
             //If the second word is OUTPUT
             if(inputTokenSplit[1] == "OUTPUT") {
                 logic = new LogicValues();
-                logicValues.push_back(logic);
                 logic->name = inputTokenSplit[0];
                 logic->type = "OUTPUT";
                 logic->isOutput = true;
+                logicValues.push_back(logic);
+                logic->isOutputOutput = true;
+                std::cout << "Output Node of " << logic->name << std::endl;
             }
             //If the second word is =, it is an equation
             if (inputTokenSplit[1] == "=") {
@@ -70,6 +77,7 @@ std::vector<LogicValues*> readFile() {
                     logic->name = inputTokenSplit[0];
                     logic->type = "AND";
                     logic->isOutput = false;
+                    logic->isOutputOutput = false;
                     logic->inputs.push_back(getLogicValues(logicValues, inputTokenSplit[3]));
                     logic->inputs.push_back(getLogicValues(logicValues, inputTokenSplit[4]));
                 }
@@ -80,6 +88,7 @@ std::vector<LogicValues*> readFile() {
                     logic->name = inputTokenSplit[0];
                     logic->type = "OR";
                     logic->isOutput = false;
+                    logic->isOutputOutput = false;
                     logic->inputs.push_back(getLogicValues(logicValues, inputTokenSplit[3]));
                     logic->inputs.push_back(getLogicValues(logicValues, inputTokenSplit[4]));
                 }
@@ -90,6 +99,7 @@ std::vector<LogicValues*> readFile() {
                     logic->name = inputTokenSplit[0];
                     logic->type = "NOT";
                     logic->isOutput = false;
+                    logic->isOutputOutput = false;
                     logic->inputs.push_back(getLogicValues(logicValues, inputTokenSplit[3]));
                 }
 
@@ -100,6 +110,7 @@ std::vector<LogicValues*> readFile() {
                     logic->name = inputTokenSplit[0];
                     logic->type = inputTokenSplit[2];
                     logic->isOutput = true;
+                    logic->isOutputOutput = false;
                     logic->inputs.push_back(getLogicValues(logicValues, inputTokenSplit[3]));
                     logic->inputs.push_back(getLogicValues(logicValues, inputTokenSplit[4]));
                 }
