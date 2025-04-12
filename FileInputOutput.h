@@ -124,5 +124,13 @@ std::vector<LogicValues*> readFile() {
     return logicValues;
         }
 
+void writeFile(int cost) {
+    std::ofstream outputFile("output.txt");
+    if(outputFile.is_open()){
+        outputFile << cost;
+        outputFile.close();
+    }
+}
+
 
 #endif //FILEINPUTOUTPUT_H
