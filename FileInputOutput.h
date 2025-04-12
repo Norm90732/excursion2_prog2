@@ -6,6 +6,8 @@
 #include <sstream>
 #include <iostream>
 
+
+
 //Struct to define logic values
 struct LogicValues {
     std::string name;
