@@ -142,7 +142,8 @@ public:
         }
 
         if (root->right != nullptr) {
-            if (root->right->type == "AND") {
+            //replaced root->right->type == "AND"
+            if (root->right->data->type == "AND") {
                 Traverse* oldChild = root->right;
                 Traverse* newChild = new Traverse;
                 LogicValues* notGate = new LogicValues;
