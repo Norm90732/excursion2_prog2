@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <string>
 #include <unordered_map>
-
+#include <vector>
 #include "FileInputOutput.h"
 
 const int NOTCost = 2;
@@ -78,7 +78,7 @@ public:
             node->left = buildTree(logic->inputs[0]);
             node->right = nullptr;
         }
-        else if (logic->inputs.size() == 0) {
+        else {
             node->left = nullptr;
             node->right = nullptr;
         }

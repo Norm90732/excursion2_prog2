@@ -6,8 +6,6 @@
 #include <sstream>
 #include <iostream>
 
-
-
 //Struct to define logic values
 struct LogicValues {
     std::string name;
@@ -67,14 +65,13 @@ std::vector<LogicValues*> readFile() {
                 logic = new LogicValues();
                 logic->name = inputTokenSplit[0];
                 logic->type = "OUTPUT";
-                logic->isOutput = false;
+                logic->isOutput = true;
                 logicValues.push_back(logic);
                 logic->isEQN = false;
                 std::cout << "Output Node of " << logic->name << std::endl;
             }
             //If the second word is =, it is an equation
             if (inputTokenSplit[1] == "=") {
-
                 if (inputTokenSplit[2] == "AND") {
                     logic = new LogicValues();
                     logicValues.push_back(logic);
@@ -106,23 +103,27 @@ std::vector<LogicValues*> readFile() {
                     logic->isEQN = true;
                     logic->inputs.push_back(getLogicValues(logicValues, inputTokenSplit[3]));
                 }
-
-                //checks if word 0, letter 0 is t, it assumes output
-                else if (inputTokenSplit[0][0] != 't') {
-                    logic = new LogicValues();
-                    logicValues.push_back(logic);
-                    logic->name = inputTokenSplit[0];
-                    logic->type = inputTokenSplit[2];
-                    logic->isOutput = true;
-                    logic->isEQN = true;
-                    logic->inputs.push_back(getLogicValues(logicValues, inputTokenSplit[3]));
-                    logic->inputs.push_back(getLogicValues(logicValues, inputTokenSplit[4]));
+                else {
+                    logic = getLogicValues(logicValues, inputTokenSplit[0]);
+                    if(logic != nullptr) {
+                        logic->isEQN = true;
+                        LogicValues* SNode = getLogicValues(logicValues, inputTokenSplit[2]);
+                        if (SNode != nullptr) {
+                            logic->inputs.push_back(SNode);
+                            if(inputTokenSplit.size()>3) {
+                                LogicValues* SNode2 = getLogicValues(logicValues, inputTokenSplit[3]);
+                                if (SNode2 != nullptr) {
+                                    logic->inputs.push_back(SNode2);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
-        }
+    }
     return logicValues;
-        }
+}
 
 void writeFile(int cost) {
     std::ofstream outputFile("output.txt");
