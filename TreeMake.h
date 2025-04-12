@@ -183,11 +183,11 @@ public:
         if(root->data->type == "NOT" && root->left != nullptr && root->left->data->type == "NAND") {
             topologies.push_back("AND2");
             std::vector<Traverse*> children;
-            children.push_back(root->left);
-            children.push_back(root->right);
+            children.push_back(root->left->left);
+            children.push_back(root->left->right);
             allChildren.push_back(children);
         }
-        if (root->data->type == "NOT" && root->left != nullptr && root->left->data->type == "NAND" && root->left->left->data->type == "NOT" &&
+        if (root->data->type == "NOT" && root->left->data->type == "NAND" && root->left->left->data->type == "NOT" &&
             root->left->right->data->type == "NOT") {
             topologies.push_back("NOR2");
             std::vector<Traverse*> children;
