@@ -49,11 +49,11 @@ public:
 
     Traverse* root;
     TreeMake() {
+        nandNotCounter = 0;
         logicValues = readFile();
         //reverse the vector to make the tree from output to input
         std::reverse(logicValues.begin(), logicValues.end());
         root = buildTree(logicValues[0]);
-        nandNotCounter = 0;
         NandNotTreeBuilder(root);
         costs["NOT"] = 2;
         costs["NAND2"] = 3;
@@ -102,16 +102,12 @@ public:
     }
 
     void NandNotTreeBuilder(Traverse* root) {
-        nandNotCounter++;
         if (root == nullptr) {
             return;
         }
 
-        if (root->data->name == "t2") {
-            std::cout << "DEBUG" << std::endl;
-        }
-
-        if (nandNotCounter == 1) {
+        if (nandNotCounter == 0) {
+            nandNotCounter = 1;
             if (root->data->type == "AND") {
                 root->data->type = "NAND";
                 Traverse* newNode = new Traverse;
@@ -124,30 +120,28 @@ public:
                 this->root = newNode;
             }
         }
-        else {
-            if (root->data->type == "OR") {
-                root->data->type = "NAND";
-                Traverse* oldChild1 = root->left;
-                Traverse* oldChild2 = root->right;
-                Traverse* newChild1 = new Traverse;
-                LogicValues* not1 = new LogicValues;
-                not1->type = "NOT";
-                not1->isEQN = true;
-                newChild1->data = not1;
-                root->left = newChild1;
-                newChild1->left = oldChild1;
-                newChild1->right = nullptr;
-                Traverse* newChild2 = new Traverse;
-                LogicValues* not2 = new LogicValues;
-                not2->type = "NOT";
-                not2->isEQN = true;
-                newChild2->data = not2;
-                root->right = newChild2;
-                newChild2->left = oldChild2;
-                newChild2->right = nullptr;
-            }
-        }
 
+        if (root->data->type == "OR") {
+            root->data->type = "NAND";
+            Traverse* oldChild1 = root->left;
+            Traverse* oldChild2 = root->right;
+            Traverse* newChild1 = new Traverse;
+            LogicValues* not1 = new LogicValues;
+            not1->type = "NOT";
+            not1->isEQN = true;
+            newChild1->data = not1;
+            root->left = newChild1;
+            newChild1->left = oldChild1;
+            newChild1->right = nullptr;
+            Traverse* newChild2 = new Traverse;
+            LogicValues* not2 = new LogicValues;
+            not2->type = "NOT";
+            not2->isEQN = true;
+            newChild2->data = not2;
+            root->right = newChild2;
+            newChild2->left = oldChild2;
+            newChild2->right = nullptr;
+        }
         if (root->left && root->left->data->type == "AND") {
             root->left->data->type = "NAND";
             Traverse* oldChild = root->left;
@@ -160,25 +154,19 @@ public:
             newChild->left = oldChild;
             newChild->right = nullptr;
         }
-        if (root->right) {
-            if (root->right->data->type == "AND") {
-                Traverse* oldChild = root->right;
-                Traverse* newChild = new Traverse;
-                LogicValues* notGate = new LogicValues;
-                notGate->isEQN = true;
-                notGate->type = "NOT";
-                newChild->data = notGate;
-                if (!root->left) {
-                    root->left = newChild;
-                }
-                else {
-                    root->right = newChild;
-                }
-                newChild->left = oldChild;
-                newChild->right = nullptr;
-            }
+        if (root->right && root->right->data->type == "AND") {
+            root->right->data->type = "NAND";
+            Traverse* oldChild = root->right;
+            Traverse* newChild = new Traverse;
+            LogicValues* notGate = new LogicValues;
+            notGate->isEQN = true;
+            notGate->type = "NOT";
+            newChild->data = notGate;
+            root->right = newChild;
+            newChild->left = oldChild;
+            newChild->right = nullptr;
         }
-
+        nandNotCounter += 1;
         if (root->left) {
             NandNotTreeBuilder(root->left);
         }
