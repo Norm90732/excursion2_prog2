@@ -40,7 +40,7 @@ struct GateInfo {
     std::vector<std::vector<Traverse*>> allChildren{};
 };
 
-
+//Class that contains operations to make a netlist tree, nand-not tree, and find the minimum cost
 class TreeMake {
 public:
     std::vector<LogicValues*> logicValues;

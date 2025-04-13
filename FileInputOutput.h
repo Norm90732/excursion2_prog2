@@ -72,6 +72,7 @@ std::vector<LogicValues*> readFile() {
             }
             //If the second word is =, it is an equation
             if (inputTokenSplit[1] == "=") {
+                //If the word has AND, its an AND operation
                 if (inputTokenSplit[2] == "AND") {
                     logic = new LogicValues();
                     logicValues.push_back(logic);
@@ -82,7 +83,7 @@ std::vector<LogicValues*> readFile() {
                     logic->inputs.push_back(getLogicValues(logicValues, inputTokenSplit[3]));
                     logic->inputs.push_back(getLogicValues(logicValues, inputTokenSplit[4]));
                 }
-
+                //If the word has AND, its an OR operation
                 else if (inputTokenSplit[2] == "OR") {
                     logic = new LogicValues();
                     logicValues.push_back(logic);
@@ -93,7 +94,7 @@ std::vector<LogicValues*> readFile() {
                     logic->inputs.push_back(getLogicValues(logicValues, inputTokenSplit[3]));
                     logic->inputs.push_back(getLogicValues(logicValues, inputTokenSplit[4]));
                 }
-
+                //If the word has AND, its a NOT operation
                 else if (inputTokenSplit[2] == "NOT") {
                     logic = new LogicValues();
                     logicValues.push_back(logic);
@@ -103,6 +104,7 @@ std::vector<LogicValues*> readFile() {
                     logic->isEQN = true;
                     logic->inputs.push_back(getLogicValues(logicValues, inputTokenSplit[3]));
                 }
+                //Its most likely a not operation if its not anything else, handles single and double inputs to the final node.
                 else {
                     logic = getLogicValues(logicValues, inputTokenSplit[0]);
                     if(logic != nullptr) {
@@ -122,9 +124,11 @@ std::vector<LogicValues*> readFile() {
             }
         }
     }
+    //Returns the logicValues container
     return logicValues;
 }
 
+//Writes to the output file.
 void writeFile(int cost) {
     std::ofstream outputFile("output.txt");
     if(outputFile.is_open()){
