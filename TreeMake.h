@@ -64,7 +64,6 @@ public:
         costs["AOI21"] = 7;
         costs["AOI22"] = 7;
         costMin(root);
-        overlaps(root);
     }
 
     Traverse* buildTree(LogicValues* logic) {
@@ -90,7 +89,7 @@ public:
 
         return node;
     }
-    
+
     void printTree(Traverse* root) {
         if (root == nullptr) {
             return;
@@ -100,19 +99,6 @@ public:
         std::cout << root->data->name << " ";
         std::cout << root->data->type << " ";
         std::cout << root->data->NOT << " , ";
-    }
-
-    void overlaps(Traverse* root) {
-        if (root == nullptr) {
-            return;
-        }
-        if(std::find(visited.begin(), visited.end(), root->data->name) != visited.end()) {
-            this->root->minCost -= root->minCost;
-        }
-        visited.push_back(root->data->name);
-        overlaps(root->left);
-        overlaps(root->right);
-
     }
 
     void NandNotTreeBuilder(Traverse* root) {
@@ -132,7 +118,7 @@ public:
                 newNode->left = root;
                 newNode->right = nullptr;
                 this->root = newNode;
-                not1->name = "not5" + newNode->left->data->name;
+                not1->name = "not" + newNode->left->data->name;
             }
         }
 
@@ -156,8 +142,8 @@ public:
             root->right = newChild2;
             newChild2->left = oldChild2;
             newChild2->right = nullptr;
-            not1->name = "not3" + newChild1->left->data->name;
-            not2->name = "not4" + newChild2->left->data->name;
+            not1->name = "not" + newChild1->left->data->name;
+            not2->name = "not" + newChild2->left->data->name;
         }
         if (root->left && root->left->data->type == "AND") {
             root->left->data->type = "NAND";
@@ -170,7 +156,7 @@ public:
             root->left = newChild;
             newChild->left = oldChild;
             newChild->right = nullptr;
-            notGate->name = "not1" + oldChild->data->name;
+            notGate->name = "not" + oldChild->data->name;
         }
         if (root->right && root->right->data->type == "AND") {
             root->right->data->type = "NAND";
@@ -183,7 +169,7 @@ public:
             root->right = newChild;
             newChild->left = oldChild;
             newChild->right = nullptr;
-            notGate->name = "not2" + oldChild->data->name;
+            notGate->name = "not" + newChild->left->data->name;
         }
         nandNotCounter += 1;
         if (root->left) {
