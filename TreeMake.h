@@ -101,25 +101,30 @@ public:
         std::cout << root->data->NOT << " , ";
     }
 
-    void NandNotTreeBuilder(Traverse* &root) {
+    void NandNotTreeBuilder(Traverse* root) {
+        nandNotCounter++;
         if (root == nullptr) {
             return;
         }
 
-        if (nandNotCounter == 0) {
+        if (root->data->name == "t2") {
+            std::cout << "DEBUG" << std::endl;
+        }
+
+        if (nandNotCounter == 1) {
             if (root->data->type == "AND") {
                 root->data->type = "NAND";
                 Traverse* newNode = new Traverse;
                 LogicValues* not1 = new LogicValues;
                 not1->type = "NOT";
-                not1->isEQN = false;
+                not1->isEQN = true;
                 newNode->data = not1;
                 newNode->left = root;
-                root = newNode;
+                newNode->right = nullptr;
+                this->root = newNode;
             }
         }
-
-        if (root->data->inputs.size() == 2) {
+        else {
             if (root->data->type == "OR") {
                 root->data->type = "NAND";
                 Traverse* oldChild1 = root->left;
@@ -142,43 +147,44 @@ public:
                 newChild2->right = nullptr;
             }
         }
-        if (root->left != nullptr) {
-            if (root->left->data->type == "AND") {
-                root->left->data->type = "NAND";
-                Traverse* oldChild = root->left;
-                Traverse* newChild = new Traverse;
-                LogicValues* notGate = new LogicValues;
-                notGate->type = "NOT";
-                notGate->isEQN = true;
-                newChild->data = notGate;
-                root->left = newChild;
-                newChild->left = oldChild;
-                newChild->right = nullptr;
-            }
-        }
 
-        if (root->right != nullptr) {
-            if (root->right->type == "AND") {
+        if (root->left && root->left->data->type == "AND") {
+            root->left->data->type = "NAND";
+            Traverse* oldChild = root->left;
+            Traverse* newChild = new Traverse;
+            LogicValues* notGate = new LogicValues;
+            notGate->type = "NOT";
+            notGate->isEQN = true;
+            newChild->data = notGate;
+            root->left = newChild;
+            newChild->left = oldChild;
+            newChild->right = nullptr;
+        }
+        if (root->right) {
+            if (root->right->data->type == "AND") {
                 Traverse* oldChild = root->right;
                 Traverse* newChild = new Traverse;
                 LogicValues* notGate = new LogicValues;
                 notGate->isEQN = true;
                 notGate->type = "NOT";
                 newChild->data = notGate;
-                root->right = newChild;
+                if (!root->left) {
+                    root->left = newChild;
+                }
+                else {
+                    root->right = newChild;
+                }
                 newChild->left = oldChild;
                 newChild->right = nullptr;
             }
         }
 
-        if (root->left != nullptr) {
+        if (root->left) {
             NandNotTreeBuilder(root->left);
         }
-        if (root->right != nullptr) {
+        if (root->right) {
             NandNotTreeBuilder(root->right);
         }
-
-        nandNotCounter++;
     }
 
     GateInfo getTopologies(Traverse* root) {
