@@ -45,6 +45,7 @@ class TreeMake {
 public:
     std::vector<LogicValues*> logicValues;
     std::unordered_map<std::string, int> costs;
+    int nandNotCounter;
 
     Traverse* root;
     TreeMake() {
@@ -52,6 +53,7 @@ public:
         //reverse the vector to make the tree from output to input
         std::reverse(logicValues.begin(), logicValues.end());
         root = buildTree(logicValues[0]);
+        nandNotCounter = 0;
         NandNotTreeBuilder(root);
         costs["NOT"] = 2;
         costs["NAND2"] = 3;
@@ -98,9 +100,23 @@ public:
         std::cout << root->data->type << " ";
         std::cout << root->data->NOT << " , ";
     }
-    void NandNotTreeBuilder(Traverse* root) {
+
+    void NandNotTreeBuilder(Traverse* &root) {
         if (root == nullptr) {
             return;
+        }
+
+        if (nandNotCounter == 0) {
+            if (root->data->type == "AND") {
+                root->data->type = "NAND";
+                Traverse* newNode = new Traverse;
+                LogicValues* not1 = new LogicValues;
+                not1->type = "NOT";
+                not1->isEQN = false;
+                newNode->data = not1;
+                newNode->left = root;
+                root = newNode;
+            }
         }
 
         if (root->data->inputs.size() == 2) {
@@ -142,8 +158,7 @@ public:
         }
 
         if (root->right != nullptr) {
-            //replaced root->right->type == "AND"
-            if (root->right->data->type == "AND") {
+            if (root->right->type == "AND") {
                 Traverse* oldChild = root->right;
                 Traverse* newChild = new Traverse;
                 LogicValues* notGate = new LogicValues;
@@ -162,6 +177,8 @@ public:
         if (root->right != nullptr) {
             NandNotTreeBuilder(root->right);
         }
+
+        nandNotCounter++;
     }
 
     GateInfo getTopologies(Traverse* root) {
@@ -226,6 +243,13 @@ public:
         GateInfo ourTopology;
         ourTopology.allChildren = allChildren;
         ourTopology.topologies = topologies;
+
+        if (root->data->name == "F") {
+            std::cout << "Number of topologies: " << ourTopology.allChildren.size() << std::endl;
+            std::cout << "type: " << root->data->type << std::endl;
+            std::cout << "child type: " << root->left->data->type << std::endl;
+        }
+
         return ourTopology;
     }
 
@@ -245,11 +269,11 @@ public:
         for (int i = 0; i < ourTopology.allChildren.size(); i++) {
             int costOfChildren = 0;
             for (int j = 0; j < ourTopology.allChildren[i].size(); j++) {
-                if (ourTopology.allChildren[i][j] != nullptr)
-                    costOfChildren += ourTopology.allChildren[i][j]->minCost;
+                costOfChildren += ourTopology.allChildren[i][j]->minCost;
             }
             node->minCost = std::min(node->minCost, costs[ourTopology.topologies[i]] + costOfChildren);
         }
+        std::cout << node->data->name << " " << node->minCost << std::endl;
     }
 
     int getFinalCost() {
