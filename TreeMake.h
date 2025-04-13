@@ -40,12 +40,13 @@ struct GateInfo {
     std::vector<std::vector<Traverse*>> allChildren{};
 };
 
-//Class that contains operations to make a netlist tree, nand-not tree, and find the minimum cost
+
 class TreeMake {
 public:
     std::vector<LogicValues*> logicValues;
     std::unordered_map<std::string, int> costs;
     int nandNotCounter;
+    std::vector<std::string> visited;
 
     Traverse* root;
     TreeMake() {
@@ -63,6 +64,7 @@ public:
         costs["AOI21"] = 7;
         costs["AOI22"] = 7;
         costMin(root);
+        overlaps(root);
     }
 
     Traverse* buildTree(LogicValues* logic) {
@@ -88,8 +90,7 @@ public:
 
         return node;
     }
-
-
+    
     void printTree(Traverse* root) {
         if (root == nullptr) {
             return;
@@ -99,6 +100,19 @@ public:
         std::cout << root->data->name << " ";
         std::cout << root->data->type << " ";
         std::cout << root->data->NOT << " , ";
+    }
+
+    void overlaps(Traverse* root) {
+        if (root == nullptr) {
+            return;
+        }
+        if(std::find(visited.begin(), visited.end(), root->data->name) != visited.end()) {
+            this->root->minCost -= root->minCost;
+        }
+        visited.push_back(root->data->name);
+        overlaps(root->left);
+        overlaps(root->right);
+
     }
 
     void NandNotTreeBuilder(Traverse* root) {
@@ -118,6 +132,7 @@ public:
                 newNode->left = root;
                 newNode->right = nullptr;
                 this->root = newNode;
+                not1->name = "not5" + newNode->left->data->name;
             }
         }
 
@@ -141,6 +156,8 @@ public:
             root->right = newChild2;
             newChild2->left = oldChild2;
             newChild2->right = nullptr;
+            not1->name = "not3" + newChild1->left->data->name;
+            not2->name = "not4" + newChild2->left->data->name;
         }
         if (root->left && root->left->data->type == "AND") {
             root->left->data->type = "NAND";
@@ -153,6 +170,7 @@ public:
             root->left = newChild;
             newChild->left = oldChild;
             newChild->right = nullptr;
+            notGate->name = "not1" + oldChild->data->name;
         }
         if (root->right && root->right->data->type == "AND") {
             root->right->data->type = "NAND";
@@ -165,6 +183,7 @@ public:
             root->right = newChild;
             newChild->left = oldChild;
             newChild->right = nullptr;
+            notGate->name = "not2" + oldChild->data->name;
         }
         nandNotCounter += 1;
         if (root->left) {
@@ -174,6 +193,8 @@ public:
             NandNotTreeBuilder(root->right);
         }
     }
+
+
 
     GateInfo getTopologies(Traverse* root) {
         std::vector<std::string> topologies{};
@@ -206,7 +227,7 @@ public:
             children.push_back(root->left->left->left);
             children.push_back(root->left->right->left);
             allChildren.push_back(children);
-        }
+            }
         if (root->data->type == "NAND" &&  root->left->data->type == "NOT" && root->right->data->type == "NOT") {
             topologies.push_back("OR2");
             std::vector<Traverse*> children;
@@ -214,8 +235,7 @@ public:
             children.push_back(root->right->left);
             allChildren.push_back(children);
         }
-        if (root->data->type == "NOT" && root->left->data->type == "NAND" && root->left->left->data->type == "NAND" &&
-            root->left->right->data->type == "NOT") {
+        if (root->data->type == "NOT" && root->left->data->type == "NAND" && root->left->left->data->type == "NAND" && root->left->right->data->type == "NOT") {
             topologies.push_back("AOI21");
             std::vector<Traverse*> children;
             children.push_back(root->left->left->left);
@@ -232,21 +252,15 @@ public:
             children.push_back(root->left->right->left);
             children.push_back(root->left->right->right);
             allChildren.push_back(children);
-        }
+            }
 
         GateInfo ourTopology;
         ourTopology.allChildren = allChildren;
         ourTopology.topologies = topologies;
 
-        if (root->data->name == "F") {
-            std::cout << "Number of topologies: " << ourTopology.allChildren.size() << std::endl;
-            std::cout << "type: " << root->data->type << std::endl;
-            std::cout << "child type: " << root->left->data->type << std::endl;
-        }
 
         return ourTopology;
     }
-
 
     void costMin(Traverse* node) {
         if (node->left == nullptr && node->right == nullptr) {
