@@ -9,6 +9,7 @@
 #include <vector>
 #include "FileInputOutput.h"
 
+//Technology Library of Gates
 const int NOTCost = 2;
 const int NAND2Cost = 3;
 const int AND2Cost = 4;
@@ -17,15 +18,6 @@ const int OR2Cost = 4;
 const int AOI21Cost = 7;
 const int AOI22Cost = 7;
 
-/* struct LogicValues {
-    std::string name;
-    std::string type;
-    std::vector<LogicValues*> inputs;
-    bool NOT = false;
-    bool isOutput;
-    bool isEQN;
-};
- */
 
 //Struct for traversal
 struct Traverse : public LogicValues {
@@ -35,6 +27,7 @@ struct Traverse : public LogicValues {
     int minCost = 9999999;
 };
 
+//Stores Gate info in the form of topologies and their children.
 struct GateInfo {
     std::vector<std::string> topologies{};
     std::vector<std::vector<Traverse*>> allChildren{};
@@ -43,7 +36,9 @@ struct GateInfo {
 //Class that contains operations to make a netlist tree, nand-not tree, and find the minimum cost
 class TreeMake {
 public:
+    //Logic values input
     std::vector<LogicValues*> logicValues;
+    //makes a hashmap that stores costs
     std::unordered_map<std::string, int> costs;
     int nandNotCounter;
 
@@ -53,8 +48,10 @@ public:
         logicValues = readFile();
         //reverse the vector to make the tree from output to input
         std::reverse(logicValues.begin(), logicValues.end());
+        //builds the root with the output of the netlist equation
         root = buildTree(logicValues[0]);
         NandNotTreeBuilder(root);
+        //Technology library with a hashmap
         costs["NOT"] = 2;
         costs["NAND2"] = 3;
         costs["AND2"] = 4;
@@ -64,7 +61,7 @@ public:
         costs["AOI22"] = 7;
         costMin(root);
     }
-
+    //Builds the tree, goes left and right depending on the input size. We construct a left biased tree.
     Traverse* buildTree(LogicValues* logic) {
         if(logic == nullptr) {
             return nullptr;
@@ -89,7 +86,7 @@ public:
         return node;
     }
 
-
+    //Post Order traversal print function for checking our work
     void printTree(Traverse* root) {
         if (root == nullptr) {
             return;
@@ -101,13 +98,15 @@ public:
         std::cout << root->data->NOT << " , ";
     }
 
+    //Converts the build tree into a nand not tree
     void NandNotTreeBuilder(Traverse* root) {
         if (root == nullptr) {
             return;
         }
-
+        //NandNotCounter is used to check a node
         if (nandNotCounter == 0) {
             nandNotCounter = 1;
+            //If its and, replace it with nand, attach a not above the new NAND.
             if (root->data->type == "AND") {
                 root->data->type = "NAND";
                 Traverse* newNode = new Traverse;
@@ -120,7 +119,7 @@ public:
                 this->root = newNode;
             }
         }
-
+        //If its OR, replace the inputs with NOT
         if (root->data->type == "OR") {
             root->data->type = "NAND";
             Traverse* oldChild1 = root->left;
@@ -175,6 +174,7 @@ public:
         }
     }
 
+    //Defines the topologies based on the technology library, it identifies the topologies
     GateInfo getTopologies(Traverse* root) {
         std::vector<std::string> topologies{};
         std::vector<std::vector<Traverse*>> allChildren{};
@@ -247,7 +247,7 @@ public:
         return ourTopology;
     }
 
-
+    //Finds the minimum cost traversing the tree and stores the minimum cost
     void costMin(Traverse* node) {
         if (node->left == nullptr && node->right == nullptr) {
             node->minCost = 0;

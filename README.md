@@ -10,3 +10,7 @@ this file. The files included in this project are as follows:
 2. FileInputOutput.h
 3. TreeMake.h
 
+## Summary
+Here in this program, we read the netlist inputs from input.txt and store the data a vector of inputs to each node. Then we construct 
+a NAND/NOT tree using recursion. Finally, we use memoization/dp to find the minimum cost with the technology library. The 
+output is written to output.txt. 
