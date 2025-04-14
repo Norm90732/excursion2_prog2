@@ -269,7 +269,7 @@ public:
         }
         std::cout << node->data->name << " " << node->minCost << std::endl;
     }
-
+//Returns min cost
     int getFinalCost() {
         return root->minCost;
     }
